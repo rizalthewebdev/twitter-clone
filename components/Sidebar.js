@@ -58,7 +58,7 @@ const Sidebar = () => {
                <h4 className="font-bold text-[16px]">{session.user.name}</h4>
                <p className="text-[#6e767d] text-[14px]">@{session.user.tag}</p>
             </div>
-            <MdOutlineLogout className="hidden xl:inline ml-10 mr-2 hover:text-red-500" onClick={() => signOut({ callbackUrl: 'http://localhost:3000' })} />
+            <MdOutlineLogout className="hidden xl:inline ml-10 mr-2 hover:text-red-500" onClick={() => signOut({ callbackUrl: '/' })} />
          </div>
       </div>
    );
