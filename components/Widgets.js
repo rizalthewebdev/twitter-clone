@@ -43,8 +43,8 @@ const Widgets = ({ trendingResults, followResults }) => {
             <div className="flex justify-start items-center px-4 pb-2 text-gray-200 text-lg">
                <h4 className="font-bold">Who to follow</h4>
             </div>
-            {followResults.map((follow) => (
-               <div className="flex  justify-between p-3 items-center hover:bg-zinc-800 cursor-pointer">
+            {followResults.map((follow, index) => (
+               <div key ={index} className="flex  justify-between p-3 items-center hover:bg-zinc-800 cursor-pointer">
                   <div className="flex space-x-3">
                      <img
                         src={follow.userImg}

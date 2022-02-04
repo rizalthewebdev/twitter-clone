@@ -54,7 +54,7 @@ const PostPage = ({ trendingResults, followResults, providers }) => {
       <div className="">
          <Head>
             <title>
-               {post?.username} on Twitter : "{post?.text}"
+               {post?.username} on Twitter : {post?.text}
             </title>
             <meta name="description" content="Twitter Clone by Khoerul Rizal" />
             <link rel="icon" href="/favicon.ico" />
