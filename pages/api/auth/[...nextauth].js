@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
+const secret = process.env.NEXTAUTH_SECRET;
 export default NextAuth({
    providers: [
       GoogleProvider({
@@ -20,5 +21,5 @@ export default NextAuth({
          return session;
       },
    },
-   secret= process.env.NEXTAUTH_SECRET
+   secret: process.env.JWT_SECRET
 });
