@@ -12,18 +12,17 @@ import Head from "next/head";
 import Sidebar from "../components/Sidebar";
 import { getProviders, getSession, useSession } from "next-auth/react";
 import Modal from "../components/Modal";
-import { useRecoilState } from "recoil";
-import { modalState } from "../atoms/modalAtom";
 import Login from "../components/Login";
 import { IoMdArrowBack } from "react-icons/io";
 import Post from "../components/Post";
 import Comment from "../components/Comment";
 import Widgets from "../components/Widgets";
-import axios, { AxiosHeaders } from "axios";
+import { useAtom } from "jotai";
+import { isShowModalAtom } from "../atoms/jotaiStore";
 
 const PostPage = ({ trendingResults, followResults, providers }) => {
    const { data: session } = useSession();
-   const [isOpen, setIsOpen] = useRecoilState(modalState);
+   const [isOpen] = useAtom(isShowModalAtom);
    const [post, setPost] = useState();
    const [comments, setComments] = useState([]);
    const router = useRouter();

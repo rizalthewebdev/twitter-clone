@@ -4,14 +4,13 @@ import Sidebar from "../components/Sidebar";
 import { getProviders, getSession, useSession } from "next-auth/react";
 import Login from "../components/Login";
 import Modal from "../components/Modal";
-import { useRecoilState } from "recoil";
-import { modalState } from "../atoms/modalAtom";
 import Widgets from "../components/Widgets";
-import axios from "axios";
+import { useAtom } from "jotai";
+import { isShowModalAtom } from "@/atoms/jotaiStore";
 
 export default function Home({ trendingResults, followResults, providers }) {
    const { data: session } = useSession();
-   const [isOpen, setIsOpen] = useRecoilState(modalState);
+   const [isOpen] = useAtom(isShowModalAtom);
 
    if (!session) return <Login providers={providers} />;
    return (

@@ -16,14 +16,14 @@ import { AiOutlineRetweet, AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { FiShare, FiBarChart2 } from "react-icons/fi";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useRecoilState } from "recoil";
-import { modalState, postIdState } from "../atoms/modalAtom";
 import Image from "next/image";
+import { useAtom } from "jotai";
+import { activePostIdAtom, isShowModalAtom } from "@/atoms/jotaiStore";
 
 const Post = ({ id, post, postPage }) => {
    const { data: session } = useSession();
-   const [isOpen, setIsOpen] = useRecoilState(modalState);
-   const [postId, setPostId] = useRecoilState(postIdState);
+   const [, setIsOpen] = useAtom(isShowModalAtom);
+   const [, setPostId] = useAtom(activePostIdAtom);
    const [likes, setLikes] = useState([]);
    const [liked, setLiked] = useState(false);
    const [comments, setComments] = useState([]);

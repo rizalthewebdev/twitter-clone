@@ -1,6 +1,5 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { modalState, postIdState } from "../atoms/modalAtom";
+import React, { useEffect, useState } from "react";
+import { isShowModalAtom, activePostIdAtom } from "../atoms/jotaiStore";
 import { Dialog, Transition } from "@headlessui/react";
 import {
    onSnapshot,
@@ -16,13 +15,14 @@ import { MdOutlineClose } from "react-icons/md";
 import { BsEmojiSmile } from "react-icons/bs";
 import Image from "next/image";
 import moment from "moment";
+import { useAtom } from "jotai";
 
 const Modal = () => {
    const { data: session } = useSession();
-   const [isOpen, setIsOpen] = useRecoilState(modalState);
+   const [isOpen, setIsOpen] = useAtom(isShowModalAtom);
    const [post, setPost] = useState();
-   const [showEmojis, setShowEmojis] = useState(false);
-   const [postId, setPostId] = useRecoilState(postIdState);
+   const [, setShowEmojis] = useState(false);
+   const [postId] = useAtom(activePostIdAtom);
    const [comment, setComment] = useState("");
    const router = useRouter();
 

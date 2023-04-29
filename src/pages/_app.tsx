@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
+import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
-import { RecoilRoot } from "recoil";
 
 export default function App({
    Component,
@@ -9,9 +9,9 @@ export default function App({
 }: AppProps) {
    return (
       <SessionProvider session={session}>
-         <RecoilRoot>
+         <Provider>
             <Component {...pageProps} />
-         </RecoilRoot>
+         </Provider>
       </SessionProvider>
    );
 }
