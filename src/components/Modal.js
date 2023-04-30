@@ -12,16 +12,15 @@ import { db } from "../firebase";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { MdOutlineClose } from "react-icons/md";
-import { BsEmojiSmile } from "react-icons/bs";
 import Image from "next/image";
 import moment from "moment";
 import { useAtom } from "jotai";
+import Input from "./Input";
 
 const Modal = () => {
    const { data: session } = useSession();
    const [isOpen, setIsOpen] = useAtom(isShowModalAtom);
    const [post, setPost] = useState();
-   const [, setShowEmojis] = useState(false);
    const [postId] = useAtom(activePostIdAtom);
    const [comment, setComment] = useState("");
    const router = useRouter();
@@ -40,7 +39,7 @@ const Modal = () => {
       sym.forEach((el) => codesArr.push("0x" + el));
       let emoji = String.fromCodePoint(...codesArr);
 
-      setInput(input + emoji);
+      setComment(input + emoji);
    };
 
    const sendComment = async (e) => {
@@ -127,41 +126,7 @@ const Modal = () => {
                               </div>
                            </div>
 
-                           <div className="mt-7 flex space-x-3 w-full">
-                              <Image
-                                 src={session.user.image}
-                                 alt=""
-                                 height={44}
-                                 width={44}
-                                 className="rounded-full self-start"
-                              />
-                              <div className="flex-grow mt-2">
-                                 <textarea
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    placeholder="Tweet your reply"
-                                    className="bg-transparent outline-none text-gray-200 placeholder-gray-500 tracking-wide w-full min-h-[50px]"
-                                 />
-                                 <div className="flex justify-between items-center soace-x-3 mt-10">
-                                    <div
-                                       className="icon text-xl"
-                                       onClick={() =>
-                                          setShowEmojis((emo) => !emo)
-                                       }
-                                    >
-                                       <BsEmojiSmile />
-                                    </div>
-
-                                    <button
-                                       className="px-5 py-1.5 rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] shadow-md font-semibold text-gray-200 disabled:hover:bg-[#1d9bf0] disabled:opacity-50 disabled:cursor-default"
-                                       disabled={!comment.trim()}
-                                       onClick={sendComment}
-                                    >
-                                       Reply
-                                    </button>
-                                 </div>
-                              </div>
-                           </div>
+                           <Input isComment />
                         </div>
                      </div>
                   </div>

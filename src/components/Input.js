@@ -10,15 +10,22 @@ import {
 } from "@firebase/firestore";
 import { getDownloadURL, ref, uploadString } from "@firebase/storage";
 import { MdOutlineClose } from "react-icons/md";
-import { BsEmojiSmile } from "react-icons/bs";
+import { BsEmojiSmile, BsEmojiSmileFill } from "react-icons/bs";
 import { HiOutlinePhotograph } from "react-icons/hi";
-import { Picker } from "emoji-mart";
 import { useSession } from "next-auth/react";
+import data from "@emoji-mart/data";
+import EmojiPicker from "@emoji-mart/react";
+import { useAtom } from "jotai";
+import { activePostIdAtom, isShowModalAtom } from "@/atoms/jotaiStore";
+import { useRouter } from "next/router";
 
-const Input = () => {
+const Input = ({ isComment = false }) => {
+   const router = useRouter();
    const [input, setInput] = useState("");
    const [selectedFile, setSelectedFile] = useState(null);
    const [showEmojis, setShowEmojis] = useState(false);
+   const [postId] = useAtom(activePostIdAtom);
+   const [, setIsOpen] = useAtom(isShowModalAtom);
    const [loading, setLoading] = useState(false);
    const filePickerRef = useRef();
    const { data: session } = useSession();
@@ -47,26 +54,39 @@ const Input = () => {
       if (loading) return;
       setLoading(true);
 
-      const docRef = await addDoc(collection(db, "posts"), {
-         id: session.user.uid,
-         username: session.user.name,
-         userImg: session.user.image,
-         tag: session.user.tag,
-         text: input,
-         timestamp: serverTimestamp(),
-      });
+      if (isComment) {
+         await addDoc(collection(db, "posts", postId, "comments"), {
+            comment: input,
+            username: session.user.name,
+            tag: session.user.tag,
+            userImg: session.user.image,
+            timestamp: serverTimestamp(),
+         });
 
-      const imageRef = ref(storage, `posts/${docRef.id}/image`);
+         router.push(`/${postId}`);
+         setIsOpen(false);
+      } else {
+         const docRef = await addDoc(collection(db, "posts"), {
+            id: session.user.uid,
+            username: session.user.name,
+            userImg: session.user.image,
+            tag: session.user.tag,
+            text: input,
+            timestamp: serverTimestamp(),
+         });
 
-      if (selectedFile) {
-         await uploadString(imageRef, selectedFile, "data_url").then(
-            async () => {
-               const downloadURL = await getDownloadURL(imageRef);
-               await updateDoc(doc(db, "posts", docRef.id), {
-                  image: downloadURL,
-               });
-            }
-         );
+         const imageRef = ref(storage, `posts/${docRef.id}/image`);
+
+         if (selectedFile) {
+            await uploadString(imageRef, selectedFile, "data_url").then(
+               async () => {
+                  const downloadURL = await getDownloadURL(imageRef);
+                  await updateDoc(doc(db, "posts", docRef.id), {
+                     image: downloadURL,
+                  });
+               }
+            );
+         }
       }
 
       setLoading(false);
@@ -77,14 +97,18 @@ const Input = () => {
 
    return (
       <div
-         className={`border-b border-zinc-800 px-4 py-2 flex space-x-4 items-start ${
-            loading && "opacity-60"
-         }`}
+         className={
+            isComment
+               ? "mt-7 flex space-x-3 z-[9999]"
+               : `border-b border-zinc-800 px-4 py-2 flex space-x-4 items-start ${
+                    loading && "opacity-60"
+                 }`
+         }
       >
          <Image
             src={session.user.image}
             alt="profile"
-            className="rounded-full cursor-pointer"
+            className="rounded-full cursor-pointer self-start"
             width={50}
             height={50}
          />
@@ -96,8 +120,10 @@ const Input = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   rows={2}
-                  className="bg-transparent outline-none w-full mt-2 text-xl placeholder:text-[20px] placeholder:text-gray-500 min-h-[50px] overflow-y-scroll scrollbar-hide"
-                  placeholder="What's happening?"
+                  className="bg-transparent outline-none w-full mt-2 text-xl placeholder:text-[20px] placeholder:text-gray-500 min-h-[50px] overflow-y-scroll scrollbar-hide text-white"
+                  placeholder={
+                     isComment ? "Tweet your reply" : "What's happening?"
+                  }
                />
                {selectedFile && (
                   <div className="relative">
@@ -117,46 +143,63 @@ const Input = () => {
             </div>
             {!loading && (
                <div className="flex justify-between items-center py-2">
-                  <div className="flex items-center">
-                     <div
-                        className="icon"
-                        onClick={() => filePickerRef.current.click()}
-                     >
-                        <HiOutlinePhotograph />
-                        <input
-                           type="file"
-                           hidden
-                           onChange={addImagePost}
-                           ref={filePickerRef}
-                        />
-                     </div>
-                     <div
-                        className="icon text-xl"
-                        onClick={() => setShowEmojis((emo) => !emo)}
-                     >
-                        <BsEmojiSmile />
-                     </div>
+                  {!isComment ? (
+                     <div className="flex items-center">
+                        <div
+                           className="icon"
+                           onClick={() => filePickerRef.current.click()}
+                        >
+                           <HiOutlinePhotograph size={24} />
+                           <input
+                              type="file"
+                              hidden
+                              onChange={addImagePost}
+                              ref={filePickerRef}
+                           />
+                        </div>
 
-                     {showEmojis && (
-                        <Picker
-                           onSelect={addEmoji}
-                           style={{
-                              position: "absolute",
-                              marginTop: "465px",
-                              marginLeft: -40,
-                              maxWidth: "320px",
-                              borderRadius: "20px",
-                           }}
-                           theme="dark"
-                        />
-                     )}
-                  </div>
+                        <div
+                           className="icon text-xl"
+                           onClick={() => setShowEmojis((emo) => !emo)}
+                        >
+                           {showEmojis ? (
+                              <BsEmojiSmileFill />
+                           ) : (
+                              <BsEmojiSmile />
+                           )}
+                        </div>
+
+                        {showEmojis && (
+                           <div
+                              style={{
+                                 position: "absolute",
+                                 marginTop: "465px",
+                                 marginLeft: -40,
+                                 maxWidth: "320px",
+                                 borderRadius: "20px",
+                                 zIndex: 100000,
+                              }}
+                           >
+                              <EmojiPicker
+                                 data={data}
+                                 onEmojiSelect={addEmoji}
+                                 // onClickOutside={() => setShowEmojis(false)}
+                                 theme="dark"
+                              />
+                           </div>
+                        )}
+                     </div>
+                  ) : (
+                     <div />
+                  )}
                   <button
-                     className="px-5 py-1.5 rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] shadow-md font-semibold disabled:hover:bg-[#1d9bf0] disabled:opacity-50 disabled:cursor-default"
+                     className={`px-5 py-1.5 rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] shadow-md font-semibold disabled:hover:bg-[#1d9bf0] disabled:opacity-50 disabled:cursor-default ${
+                        isComment && "self-end"
+                     }`}
                      disabled={!input.trim() && !selectedFile}
                      onClick={sendPost}
                   >
-                     Tweet
+                     {isComment ? "Comment" : "Tweet"}
                   </button>
                </div>
             )}
